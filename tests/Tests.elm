@@ -61,8 +61,8 @@ all =
     describe "A Test Suite"
         [ test "Can perform a simple match" <|
             \() ->
-                Expect.equal (sifter data extractor "Joe") [ elem1 ]
+                Expect.equal (sifter data config "Joe") [ elem1 ]
         , test "Can perform a case insensitive match" <|
             \() ->
-                Expect.equal (sifter data extractor "joe") [ elem1 ]
+                Expect.equal (sifter data config "joe") [ elem1 ]
         ]

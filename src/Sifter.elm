@@ -43,13 +43,21 @@ matchOne extractor string elem =
         ( matchResult, elem )
 
 
-sifter : List a -> (a -> String) -> String -> List a
+sifter : List a -> Config a -> String -> List a
 sifter data config string =
     let
         matcher =
             Regex.regex (string)
+
+        extractor =
+            config.extractors |> List.head
     in
-        data
-            |> List.map (matchOne config string)
-            |> List.filter Tuple.first
-            |> List.map Tuple.second
+        case extractor of
+            Just e ->
+                data
+                    |> List.map (matchOne e string)
+                    |> List.filter Tuple.first
+                    |> List.map Tuple.second
+
+            Nothing ->
+                []
