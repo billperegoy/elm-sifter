@@ -3,6 +3,32 @@ module Sifter exposing (..)
 import Regex
 
 
+type SortOrder
+    = Ascending
+    | Descending
+
+
+type ConjunctionType
+    = And
+    | Or
+
+
+type alias SortFields a =
+    { fields : List (a -> String)
+    , order : SortOrder
+    }
+
+
+type alias Config a =
+    { extractors : List (a -> String)
+    , limit : Int
+    , sort : SortFields a
+    , filter : Bool
+    , conjunction : ConjunctionType
+    , respectWordBoundaries : Bool
+    }
+
+
 matchOne : (a -> String) -> String -> a -> ( Bool, a )
 matchOne extractor string elem =
     let
