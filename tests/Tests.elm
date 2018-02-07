@@ -78,4 +78,11 @@ all =
                         { config | limit = 1 }
                 in
                     Expect.equal (sifter data newConfig "man") [ elem2 ]
+        , test "Properly uses And conjunction" <|
+            \() ->
+                let
+                    newConfig =
+                        { config | conjunction = And }
+                in
+                    Expect.equal (sifter data newConfig "o") [ elem1 ]
         ]
