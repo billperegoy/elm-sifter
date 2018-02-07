@@ -14,13 +14,13 @@ type ConjunctionType
 
 
 type alias SortFields a =
-    { fields : List (a -> String)
+    { fields : List (Extractor a)
     , order : SortOrder
     }
 
 
 type alias Config a =
-    { extractors : List (a -> String)
+    { extractors : List (Extractor a)
     , limit : Int
     , sort : SortFields a
     , filter : Bool
@@ -29,7 +29,26 @@ type alias Config a =
     }
 
 
-matchOne : (a -> String) -> String -> a -> ( Bool, a )
+type alias Extractor a =
+    a -> String
+
+
+reducer : List ( Bool, a ) -> Bool
+reducer list =
+    List.foldl (\e accum -> accum || Tuple.first (e)) False list
+
+
+matchAll : List (Extractor a) -> String -> a -> ( Bool, a )
+matchAll extractors string elem =
+    let
+        hasMatch =
+            List.map (\e -> matchOne e string elem) extractors
+                |> reducer
+    in
+        ( hasMatch, elem )
+
+
+matchOne : Extractor a -> String -> a -> ( Bool, a )
 matchOne extractor string elem =
     let
         matcher =
