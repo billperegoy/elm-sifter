@@ -38,8 +38,8 @@ reducer list =
     List.foldl (\e accum -> accum || Tuple.first (e)) False list
 
 
-matchAll : List (Extractor a) -> String -> a -> ( Bool, a )
-matchAll extractors string elem =
+matchAll : String -> a -> List (Extractor a) -> ( Bool, a )
+matchAll string elem extractors =
     let
         hasMatch =
             List.map (\e -> matchOne e string elem) extractors
@@ -67,16 +67,8 @@ sifter data config string =
     let
         matcher =
             Regex.regex (string)
-
-        extractor =
-            config.extractors |> List.head
     in
-        case extractor of
-            Just e ->
-                data
-                    |> List.map (matchOne e string)
-                    |> List.filter Tuple.first
-                    |> List.map Tuple.second
-
-            Nothing ->
-                []
+        data
+            |> List.map (\e -> matchAll string e config.extractors)
+            |> List.filter Tuple.first
+            |> List.map Tuple.second

@@ -59,10 +59,13 @@ extractor =
 all : Test
 all =
     describe "A Test Suite"
-        [ test "Can perform a simple match" <|
+        [ test "Can perform a simple match in first field" <|
             \() ->
                 Expect.equal (sifter data config "Joe") [ elem1 ]
         , test "Can perform a case insensitive match" <|
             \() ->
                 Expect.equal (sifter data config "joe") [ elem1 ]
+        , test "Can match address field" <|
+            \() ->
+                Expect.equal (sifter data config "blue") [ elem2 ]
         ]
