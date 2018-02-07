@@ -68,4 +68,14 @@ all =
         , test "Can match address field" <|
             \() ->
                 Expect.equal (sifter data config "blue") [ elem2 ]
+        , test "Can return more than one match" <|
+            \() ->
+                Expect.equal (sifter data config "man") [ elem2, elem3 ]
+        , test "Properly limits results" <|
+            \() ->
+                let
+                    newConfig =
+                        { config | limit = 1 }
+                in
+                    Expect.equal (sifter data newConfig "man") [ elem2 ]
         ]

@@ -72,3 +72,4 @@ sifter data config string =
             |> List.map (\e -> matchAll string e config.extractors)
             |> List.filter Tuple.first
             |> List.map Tuple.second
+            |> List.take config.limit
