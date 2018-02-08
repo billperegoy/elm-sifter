@@ -33,12 +33,12 @@ type alias Extractor a =
     a -> String
 
 
-reducer : List ( Bool, a ) -> Bool
+reducer : List ( Int, a ) -> Int
 reducer list =
-    List.foldl (\e accum -> accum || Tuple.first (e)) False list
+    List.foldl (\e accum -> accum + Tuple.first (e)) 0 list
 
 
-matchAll : String -> a -> List (Extractor a) -> ( Bool, a )
+matchAll : String -> a -> List (Extractor a) -> ( Int, a )
 matchAll string elem extractors =
     let
         hasMatch =
@@ -48,7 +48,7 @@ matchAll string elem extractors =
         ( hasMatch, elem )
 
 
-matchOne : Extractor a -> String -> a -> ( Bool, a )
+matchOne : Extractor a -> String -> a -> ( Int, a )
 matchOne extractor string elem =
     let
         matcher =
@@ -57,9 +57,14 @@ matchOne extractor string elem =
                 |> Regex.caseInsensitive
 
         matchResult =
-            Regex.contains matcher (extractor elem)
+            Regex.find (Regex.AtMost 1) matcher (extractor elem)
     in
-        ( matchResult, elem )
+        ( computeScore matchResult, elem )
+
+
+computeScore : List Regex.Match -> Int
+computeScore matchResult =
+    List.length (matchResult)
 
 
 sifter : List a -> Config a -> String -> List a
@@ -70,6 +75,6 @@ sifter data config string =
     in
         data
             |> List.map (\e -> matchAll string e config.extractors)
-            |> List.filter Tuple.first
+            |> List.filter (\e -> Tuple.first e > 0)
             |> List.map Tuple.second
             |> List.take config.limit
