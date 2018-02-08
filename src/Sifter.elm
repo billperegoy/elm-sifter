@@ -33,22 +33,17 @@ type alias Extractor a =
     a -> String
 
 
-reducer : ConjunctionType -> List ( Bool, a ) -> Bool
-reducer conjunction list =
-    case conjunction of
-        Or ->
-            List.foldl (\e accum -> accum || Tuple.first (e)) False list
-
-        And ->
-            List.foldl (\e accum -> accum && Tuple.first (e)) True list
+reducer : List ( Bool, a ) -> Bool
+reducer list =
+    List.foldl (\e accum -> accum || Tuple.first (e)) False list
 
 
-matchAll : ConjunctionType -> String -> a -> List (Extractor a) -> ( Bool, a )
-matchAll conjunction string elem extractors =
+matchAll : String -> a -> List (Extractor a) -> ( Bool, a )
+matchAll string elem extractors =
     let
         hasMatch =
             List.map (\e -> matchOne e string elem) extractors
-                |> reducer conjunction
+                |> reducer
     in
         ( hasMatch, elem )
 
@@ -74,7 +69,7 @@ sifter data config string =
             Regex.regex (string)
     in
         data
-            |> List.map (\e -> matchAll config.conjunction string e config.extractors)
+            |> List.map (\e -> matchAll string e config.extractors)
             |> List.filter Tuple.first
             |> List.map Tuple.second
             |> List.take config.limit
