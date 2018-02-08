@@ -13,6 +13,10 @@ type ConjunctionType
     | Or
 
 
+type alias ScoredResult a =
+    ( Float, a )
+
+
 type alias SortFields a =
     { fields : List (Extractor a)
     , order : SortOrder
@@ -33,12 +37,12 @@ type alias Extractor a =
     a -> String
 
 
-reducer : List ( Float, a ) -> Float
+reducer : List (ScoredResult a) -> Float
 reducer list =
     List.foldl (\e accum -> accum + Tuple.first (e)) 0.0 list
 
 
-matchAll : String -> a -> List (Extractor a) -> ( Float, a )
+matchAll : String -> a -> List (Extractor a) -> ScoredResult a
 matchAll string elem extractors =
     let
         hasMatch =
@@ -48,7 +52,7 @@ matchAll string elem extractors =
         ( hasMatch, elem )
 
 
-matchOne : Extractor a -> String -> a -> ( Float, a )
+matchOne : Extractor a -> String -> a -> ScoredResult a
 matchOne extractor string elem =
     let
         matcher =
