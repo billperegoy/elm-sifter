@@ -78,4 +78,28 @@ all =
                         { config | limit = 1 }
                 in
                     Expect.equal (sifter data newConfig "man") [ elem2 ]
+        , test "Score 1" <|
+            \() ->
+                let
+                    matchResult =
+                        [ { match = "abc"
+                          , submatches = []
+                          , index = 0
+                          , number = 1
+                          }
+                        ]
+                in
+                    Expect.equal (computeScore "abc" matchResult) 1.5
+        , test "Score 1" <|
+            \() ->
+                let
+                    matchResult =
+                        [ { match = "ab"
+                          , submatches = []
+                          , index = 0
+                          , number = 1
+                          }
+                        ]
+                in
+                    Expect.equal (computeScore "abcd" matchResult) 1.0
         ]

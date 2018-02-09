@@ -39,7 +39,7 @@ type alias Extractor a =
 
 reducer : List (ScoredResult a) -> Float
 reducer list =
-    List.foldl (\e accum -> accum + Tuple.first (e)) 0.0 list
+    (List.foldl (\e accum -> accum + Tuple.first (e)) 0.0 list) / (toFloat <| List.length list)
 
 
 matchAll : String -> a -> List (Extractor a) -> ScoredResult a
@@ -63,12 +63,31 @@ matchOne extractor string elem =
         matchResult =
             Regex.find (Regex.AtMost 1) matcher (extractor elem)
     in
-        ( computeScore matchResult, elem )
+        ( computeScore string matchResult, elem )
 
 
-computeScore : List Regex.Match -> Float
-computeScore matchResult =
-    List.length (matchResult) |> toFloat
+startOfWordScore : Regex.Match -> Float
+startOfWordScore matchResult =
+    if matchResult.index == 0 then
+        0.5
+    else
+        0.0
+
+
+baseMatchScore : String -> Regex.Match -> Float
+baseMatchScore string matchResult =
+    (toFloat <| String.length (matchResult.match))
+        / (toFloat <| String.length (string))
+
+
+computeScore : String -> List Regex.Match -> Float
+computeScore string matchResult =
+    case matchResult of
+        [] ->
+            0.0
+
+        elem :: _ ->
+            baseMatchScore string elem + startOfWordScore elem
 
 
 sifter : List a -> Config a -> String -> List a
