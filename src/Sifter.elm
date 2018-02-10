@@ -17,8 +17,8 @@ type alias ScoredResult a =
     ( Float, a )
 
 
-type alias SortFields a =
-    { fields : List (Extractor a)
+type alias SortField a =
+    { field : Extractor a
     , order : SortOrder
     }
 
@@ -26,7 +26,7 @@ type alias SortFields a =
 type alias Config a =
     { extractors : List (Extractor a)
     , limit : Int
-    , sort : SortFields a
+    , sort : Maybe (SortField a)
     , filter : Bool
     , conjunction : ConjunctionType
     , respectWordBoundaries : Bool
@@ -46,11 +46,31 @@ reducer list =
 matchAll : String -> a -> List (Extractor a) -> ScoredResult a
 matchAll string elem extractors =
     let
-        hasMatch =
-            List.map (\e -> matchOne e string elem) extractors
+        score =
+            extractors
+                |> List.map (\extractor -> matchTokens extractor string elem)
                 |> reducer
     in
-        ( hasMatch, elem )
+        ( score, elem )
+
+
+
+{-
+   FIXME - This function  should iterate over each token and
+   call matchOne, reducing the resulting scores to an average
+-}
+
+
+matchTokens : Extractor a -> String -> a -> ScoredResult a
+matchTokens extractor string elem =
+    let
+        splitRegex =
+            Regex.regex " +"
+
+        tokens =
+            Regex.split Regex.All splitRegex string
+    in
+        matchOne extractor string elem
 
 
 matchOne : Extractor a -> String -> a -> ScoredResult a

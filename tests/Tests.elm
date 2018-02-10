@@ -2,7 +2,6 @@ module Tests exposing (..)
 
 import Test exposing (..)
 import Expect
-import String
 import Sifter exposing (..)
 
 
@@ -44,7 +43,7 @@ config =
         , .address
         ]
     , limit = 3
-    , sort = { fields = [ .lastName, .firstName ], order = Descending }
+    , sort = Nothing
     , filter = False
     , conjunction = Or
     , respectWordBoundaries = False
@@ -81,6 +80,9 @@ all =
                         { config | limit = 1 }
                 in
                     Expect.equal (sifter data newConfig "man") [ elem3 ]
+        , test "Properly handles multiple tokens in seatrch string" <|
+            \() ->
+                Expect.equal (sifter data config "court blueberry") [ elem2 ]
         , test "Score 1" <|
             \() ->
                 let

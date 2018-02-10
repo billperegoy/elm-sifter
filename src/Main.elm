@@ -15,6 +15,10 @@ main =
         }
 
 
+
+-- Model
+
+
 type alias Place =
     { city : String
     , stateAbbrev : String
@@ -35,6 +39,10 @@ init =
     }
 
 
+
+-- Update
+
+
 type Msg
     = SetInputText String
 
@@ -44,6 +52,10 @@ update msg model =
     case msg of
         SetInputText text ->
             { model | inputText = text }
+
+
+
+-- View
 
 
 view : Model -> Html Msg
@@ -66,10 +78,7 @@ config : Sifter.Config Place
 config =
     { extractors = [ .city, .stateAbbrev, .state ]
     , limit = 15
-    , sort =
-        { fields = [ .city ]
-        , order = Sifter.Ascending
-        }
+    , sort = Nothing
     , filter = True
     , conjunction = Sifter.Or
     , respectWordBoundaries = False
