@@ -70,14 +70,14 @@ all =
                 Expect.equal (sifter data config "blue") [ elem2 ]
         , test "Can return more than one match" <|
             \() ->
-                Expect.equal (sifter data config "man") [ elem2, elem3 ]
+                Expect.equal (sifter data config "man") [ elem3, elem2 ]
         , test "Properly limits results" <|
             \() ->
                 let
                     newConfig =
                         { config | limit = 1 }
                 in
-                    Expect.equal (sifter data newConfig "man") [ elem2 ]
+                    Expect.equal (sifter data newConfig "man") [ elem3 ]
         , test "Score 1" <|
             \() ->
                 let

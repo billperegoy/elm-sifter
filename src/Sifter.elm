@@ -39,7 +39,8 @@ type alias Extractor a =
 
 reducer : List (ScoredResult a) -> Float
 reducer list =
-    (List.foldl (\e accum -> accum + Tuple.first (e)) 0.0 list) / (toFloat <| List.length list)
+    List.foldl (\e accum -> accum + Tuple.first (e)) 0.0 list
+        / (toFloat <| List.length list)
 
 
 matchAll : String -> a -> List (Extractor a) -> ScoredResult a
@@ -92,13 +93,18 @@ computeScore string matchResult =
 
 sifter : List a -> Config a -> String -> List a
 sifter data config string =
-    let
-        matcher =
-            Regex.regex (string)
-    in
-        data
-            |> List.map (\e -> matchAll string e config.extractors)
-            |> List.filter (\e -> Tuple.first e > 0)
-            |> List.sortBy Tuple.first
-            |> List.map Tuple.second
-            |> List.take config.limit
+    if String.length string == 0 then
+        []
+    else
+        siftData data config string
+
+
+siftData : List a -> Config a -> String -> List a
+siftData data config string =
+    data
+        |> List.map (\e -> matchAll string e config.extractors)
+        |> List.filter (\e -> Tuple.first e > 0)
+        |> List.sortBy Tuple.first
+        |> List.reverse
+        |> List.map Tuple.second
+        |> List.take config.limit
