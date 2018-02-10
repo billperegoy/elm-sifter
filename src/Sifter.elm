@@ -54,17 +54,21 @@ matchAll string elem extractors =
         ( score, elem )
 
 
-matchTokens : Extractor a -> String -> a -> ScoredResult a
-matchTokens extractor string elem =
+tokenizeString : String -> List String
+tokenizeString string =
     let
         splitRegex =
             Regex.regex " +"
+    in
+        Regex.split Regex.All splitRegex string
 
-        tokens =
-            Regex.split Regex.All splitRegex string
 
+matchTokens : Extractor a -> String -> a -> ScoredResult a
+matchTokens extractor string elem =
+    let
         score =
-            tokens
+            string
+                |> tokenizeString
                 |> List.map (\token -> matchOne extractor token elem)
                 |> reducer
     in
@@ -114,15 +118,48 @@ sifter data config string =
     if String.length string == 0 then
         []
     else
-        siftData data config string
+        siftData config string data
 
 
-siftData : List a -> Config a -> String -> List a
-siftData data config string =
+siftData : Config a -> String -> List a -> List a
+siftData config string data =
     data
-        |> List.map (\e -> matchAll string e config.extractors)
-        |> List.filter (\e -> Tuple.first e > 0)
+        |> scoreDataSet config string
+        |> filterZeroScores config.filter
+        |> sortResults
+        |> extractResults
+        |> limitResults config.limit
+
+
+filterZeroScores : Bool -> List (ScoredResult a) -> List (ScoredResult a)
+filterZeroScores filter results =
+    let
+        filter_fn =
+            if filter then
+                \e -> Tuple.first e > 0
+            else
+                \e -> True
+    in
+        List.filter (\result -> filter_fn result) results
+
+
+sortResults : List (ScoredResult a) -> List (ScoredResult a)
+sortResults results =
+    results
         |> List.sortBy Tuple.first
         |> List.reverse
-        |> List.map Tuple.second
-        |> List.take config.limit
+
+
+extractResults : List (ScoredResult a) -> List a
+extractResults results =
+    List.map Tuple.second results
+
+
+limitResults : Int -> List a -> List a
+limitResults limit results =
+    List.take limit results
+
+
+scoreDataSet : Config a -> String -> List a -> List (ScoredResult a)
+scoreDataSet config string data =
+    List.map (\datum -> matchAll string datum config.extractors) data
