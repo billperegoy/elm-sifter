@@ -54,13 +54,6 @@ matchAll string elem extractors =
         ( score, elem )
 
 
-
-{-
-   FIXME - This function  should iterate over each token and
-   call matchOne, reducing the resulting scores to an average
--}
-
-
 matchTokens : Extractor a -> String -> a -> ScoredResult a
 matchTokens extractor string elem =
     let
@@ -69,8 +62,13 @@ matchTokens extractor string elem =
 
         tokens =
             Regex.split Regex.All splitRegex string
+
+        score =
+            tokens
+                |> List.map (\token -> matchOne extractor token elem)
+                |> reducer
     in
-        matchOne extractor string elem
+        ( score, elem )
 
 
 matchOne : Extractor a -> String -> a -> ScoredResult a
