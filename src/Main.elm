@@ -87,4 +87,4 @@ config =
 
 filteredPlaces : String -> List Place -> List Place
 filteredPlaces string places =
-    Sifter.sifter places config string
+    Sifter.sifter config string places

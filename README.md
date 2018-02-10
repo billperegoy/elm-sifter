@@ -1,27 +1,47 @@
-# Elm Quickstart
-This is a repository that can be cloned or copied in order to start a new basic
-Elm application. It sets up the following:
+# elm-sifter
 
-* Basic HTML application with model, update, view and subscriptions.
-* Small utility module used to demonstrate testing.
-* npm setup to run build or tests.
+## Overview
+`elm-sifter` is a library for contextually searching and sorting arrays of Elm
+records. The user supplies a configuration that describes which fields to search
+and some search rules and sifter returns a filtered list of records sorted by
+most relevant. This library is specifically designed for auto-complete and is
+inspired by [brianreavis/sifter.js](https://github.com/brianreavis/sifter.js).
 
-To use this repository, you should follow these steps.
+## Usage
+```
+type alias Place =
+    { city : String
+    , stateAbbrev : String
+    , state : String
+    }
 
-1. npm install -g elm
+config : Sifter.Config Place
+config =
+    { extractors = [ .city, .stateAbbrev, .state ]
+    , limit = 15
+    , sort = Nothing
+    , filter = True
+    , conjunction = Sifter.Or
+    , respectWordBoundaries = False
+    }
 
-2. npm install -g elm-live
+data =
+    [
+      { city = "Baltimore", stateAbbrev = "MD", state = "Maryland"}
+    , { city = "Boston", stateAbbrev = "MA", state = "Massachusetts"}
+    , { city = "Chicage", stateAbbrev = "IL", state = "Illinois"}
+    ]
 
-3. npm install -g elm-test
 
-4. npm install
+sifter config "b" data
+    [
+      { city = "Baltimore", stateAbbrev = "MD", state = "Maryland"}
+    , { city = "Boston", stateAbbrev = "MA", state = "Massachusetts"}
+    , { city = "Chicage", stateAbbrev = "IL", state = "Illinois"}
+    ]
 
-5. npm run test
+sifter config "bos" data
+    [{ city = "Boston", stateAbbrev = "MA", state = "Massachusetts"}]
 
-6. npm run watch
-
-The *watch* step will run the elm-live build process and launch the browser.
-Future code changes will automatically trigger a rebuild and the browser will
-live reload with your changes.
-
+```
 

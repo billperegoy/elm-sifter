@@ -60,29 +60,29 @@ all =
     describe "A Test Suite"
         [ test "Returns an empty list with no search string" <|
             \() ->
-                Expect.equal (sifter data config "") []
+                Expect.equal (sifter config "" data) []
         , test "Can perform a simple match in first field" <|
             \() ->
-                Expect.equal (sifter data config "Joe") [ elem1 ]
+                Expect.equal (sifter config "Joe" data) [ elem1 ]
         , test "Can perform a case insensitive match" <|
             \() ->
-                Expect.equal (sifter data config "joe") [ elem1 ]
+                Expect.equal (sifter config "joe" data) [ elem1 ]
         , test "Can match address field" <|
             \() ->
-                Expect.equal (sifter data config "blue") [ elem2 ]
+                Expect.equal (sifter config "blue" data) [ elem2 ]
         , test "Can return more than one match" <|
             \() ->
-                Expect.equal (sifter data config "man") [ elem3, elem2 ]
+                Expect.equal (sifter config "man" data) [ elem3, elem2 ]
         , test "Properly limits results" <|
             \() ->
                 let
                     newConfig =
                         { config | limit = 1 }
                 in
-                    Expect.equal (sifter data newConfig "man") [ elem3 ]
+                    Expect.equal (sifter newConfig "man" data) [ elem3 ]
         , test "Properly handles multiple tokens in seatrch string" <|
             \() ->
-                Expect.equal (sifter data config "court blueberry") [ elem2 ]
+                Expect.equal (sifter config "court blueberry" data) [ elem2 ]
         , test "Score 1" <|
             \() ->
                 let
@@ -95,7 +95,7 @@ all =
                         ]
                 in
                     Expect.equal (computeScore "abc" matchResult) 1.5
-        , test "Score 1" <|
+        , test "Score 2" <|
             \() ->
                 let
                     matchResult =

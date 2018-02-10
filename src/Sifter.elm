@@ -113,8 +113,8 @@ computeScore string matchResult =
             baseMatchScore string elem + startOfWordScore elem
 
 
-sifter : List a -> Config a -> String -> List a
-sifter data config string =
+sifter : Config a -> String -> List a -> List a
+sifter config string data =
     if String.length string == 0 then
         []
     else
