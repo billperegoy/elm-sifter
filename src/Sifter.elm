@@ -56,13 +56,7 @@ matchAll string elem extractors =
 
 tokenizeString : String -> List String
 tokenizeString string =
-    let
-        splitRegex =
-            Regex.regex " +"
-    in
-        string
-            |> String.trim
-            |> Regex.split Regex.All splitRegex
+    String.words string
 
 
 matchTokens : Extractor a -> String -> a -> ScoredResult a
