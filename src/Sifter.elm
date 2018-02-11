@@ -37,19 +37,32 @@ type alias Extractor a =
     a -> String
 
 
-reducer : List (ScoredResult a) -> Float
-reducer list =
-    List.foldl (\e accum -> accum + Tuple.first (e)) 0.0 list
+orReducer : List (ScoredResult a) -> Float
+orReducer list =
+    List.foldl (\result accum -> accum + Tuple.first result) 0.0 list
         / (toFloat <| List.length list)
 
 
-matchAll : String -> a -> List (Extractor a) -> ScoredResult a
-matchAll string elem extractors =
+reducer : ConjunctionType -> List (ScoredResult a) -> Float
+reducer conjunction list =
+    case conjunction of
+        Or ->
+            orReducer list
+
+        And ->
+            if List.all (\result -> Tuple.first result > 0.0) list then
+                orReducer list
+            else
+                0.0
+
+
+matchAgainstAllExtractors : ConjunctionType -> String -> a -> List (Extractor a) -> ScoredResult a
+matchAgainstAllExtractors conjunction string elem extractors =
     let
         score =
             extractors
-                |> List.map (\extractor -> matchTokens extractor string elem)
-                |> reducer
+                |> List.map (\extractor -> matchTokens conjunction extractor string elem)
+                |> reducer Or
     in
         ( score, elem )
 
@@ -59,14 +72,14 @@ tokenizeString string =
     String.words string
 
 
-matchTokens : Extractor a -> String -> a -> ScoredResult a
-matchTokens extractor string elem =
+matchTokens : ConjunctionType -> Extractor a -> String -> a -> ScoredResult a
+matchTokens conjunction extractor string elem =
     let
         score =
             string
                 |> tokenizeString
                 |> List.map (\token -> matchOne extractor token elem)
-                |> reducer
+                |> reducer conjunction
     in
         ( score, elem )
 
@@ -132,9 +145,9 @@ filterZeroScores filter results =
     let
         filter_fn =
             if filter then
-                \e -> Tuple.first e > 0
+                \result -> Tuple.first result > 0
             else
-                \e -> True
+                \result -> True
     in
         List.filter (\result -> filter_fn result) results
 
@@ -158,4 +171,4 @@ limitResults limit results =
 
 scoreDataSet : Config a -> String -> List a -> List (ScoredResult a)
 scoreDataSet config string data =
-    List.map (\datum -> matchAll string datum config.extractors) data
+    List.map (\datum -> matchAgainstAllExtractors config.conjunction string datum config.extractors) data
