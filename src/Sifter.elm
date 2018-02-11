@@ -60,7 +60,9 @@ tokenizeString string =
         splitRegex =
             Regex.regex " +"
     in
-        Regex.split Regex.All splitRegex string
+        string
+            |> String.trim
+            |> Regex.split Regex.All splitRegex
 
 
 matchTokens : Extractor a -> String -> a -> ScoredResult a
