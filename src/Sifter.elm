@@ -135,7 +135,7 @@ siftData config string data =
     data
         |> scoreDataSet config string
         |> filterZeroScores config.filter
-        |> sortResults
+        |> sortResults config.sort
         |> extractResults
         |> limitResults config.limit
 
@@ -152,11 +152,40 @@ filterZeroScores filter results =
         List.filter (\result -> filter_fn result) results
 
 
-sortResults : List (ScoredResult a) -> List (ScoredResult a)
-sortResults results =
+
+-- FIXNE - This may very well be backwards
+
+
+sortFunction : SortField a -> ScoredResult a -> ScoredResult a -> Order
+sortFunction sortField a b =
+    if (Tuple.first a) == (Tuple.first b) then
+        case sortField.order of
+            Ascending ->
+                compare (sortField.field (Tuple.second a)) (sortField.field (Tuple.second b))
+
+            Descending ->
+                compare (sortField.field (Tuple.second b)) (sortField.field (Tuple.second a))
+    else
+        compare (Tuple.first a) (Tuple.first b)
+
+
+sortByField : SortField a -> List (ScoredResult a) -> List (ScoredResult a)
+sortByField field results =
     results
-        |> List.sortBy Tuple.first
+        |> List.sortWith (\a b -> sortFunction field a b)
         |> List.reverse
+
+
+sortResults : Maybe (SortField a) -> List (ScoredResult a) -> List (ScoredResult a)
+sortResults sortField results =
+    case sortField of
+        Nothing ->
+            results
+                |> List.sortBy Tuple.first
+                |> List.reverse
+
+        Just field ->
+            sortByField field results
 
 
 extractResults : List (ScoredResult a) -> List a

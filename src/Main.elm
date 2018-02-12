@@ -78,9 +78,13 @@ config : Sifter.Config Place
 config =
     { extractors = [ .city, .stateAbbrev, .state ]
     , limit = 15
-    , sort = Nothing
+    , sort =
+        Just
+            { field = .city
+            , order = Sifter.Ascending
+            }
     , filter = True
-    , conjunction = Sifter.Or
+    , conjunction = Sifter.And
     , respectWordBoundaries = False
     }
 
