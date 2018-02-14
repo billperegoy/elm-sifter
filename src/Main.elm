@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Places exposing (..)
 import Sifter exposing (..)
@@ -78,21 +79,114 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
+    div [ class "container" ]
+        [ header
+        , mainBody model
+        ]
+
+
+header : Html Msg
+header =
+    div [ class "row" ]
+        [ div [ class "col-12" ]
+            [ div [ class "jumbotron jumbotron-fluid" ]
+                [ div [ class "container" ]
+                    [ h1 [ class "text-center" ] [ text "Elm-Sifter Demo Page" ]
+                    ]
+                ]
+            ]
+        ]
+
+
+sideBar : Model -> Html Msg
+sideBar model =
+    div [ class "col-8" ]
+        [ div [ class "form-group" ]
+            [ label [ for "limit-input" ] [ text "limit" ]
+            , input
+                [ id "limit-input"
+                , class "form-control"
+                , value (toString model.config.limit)
+                , onInput SetLimit
+                ]
+                []
+            ]
+        , div [ class "form-check" ]
+            [ input
+                [ id "city-checkbox"
+                , class "form-check-input"
+                , type_ "checkbox"
+                , checked True
+                ]
+                []
+            , label
+                [ class "form-check-label"
+                , for "city-checkbox"
+                ]
+                [ text "City" ]
+            ]
+        , div [ class "form-check" ]
+            [ input
+                [ id "state-abbrev-checkbox"
+                , class "form-check-input"
+                , type_ "checkbox"
+                , checked True
+                ]
+                []
+            , label
+                [ class "form-check-label"
+                , for "state-abbrev-checkbox"
+                ]
+                [ text "State Abbrev" ]
+            ]
+        , div [ class "form-check" ]
+            [ input
+                [ id "state-checkbox"
+                , class "form-check-input"
+                , type_ "checkbox"
+                , checked True
+                ]
+                []
+            , label
+                [ class "form-check-label"
+                , for "state-checkbox"
+                ]
+                [ text "State" ]
+            ]
+        , showConfig model.config
+        ]
+
+
+mainContent : Model -> Html Msg
+mainContent model =
     let
         places =
             filteredPlaces model.config model.inputText model.places
     in
-        div []
-            [ label [] [ text "limit" ]
-            , input [ onInput SetLimit ] []
-            , showConfig model.config
-            , input [ onInput SetInputText ] []
+        div [ class "col-4" ]
+            [ div [ class "form-group" ]
+                [ label [ for "seartch-input" ] [ text "Search" ]
+                , input
+                    [ id "search-input"
+                    , class "form-control"
+                    , onInput SetInputText
+                    ]
+                    []
+                ]
             , ul []
                 (List.map
                     (\e -> li [] [ text (e.city ++ ", " ++ e.stateAbbrev) ])
                     places
                 )
             ]
+
+
+mainBody : Model -> Html Msg
+mainBody model =
+    div [ class "row" ]
+        [ sideBar model
+        , mainContent model
+        ]
 
 
 extractorsString : Sifter.Config Place -> String
@@ -155,7 +249,7 @@ getExtractorName extractor =
 
 showConfig : Sifter.Config Place -> Html Msg
 showConfig config =
-    pre []
+    pre [ style [ ( "margin-top", "30px" ) ] ]
         [ code []
             [ text
                 ("    config =\n"
