@@ -51,6 +51,10 @@ init =
 type Msg
     = SetInputText String
     | SetLimit String
+    | ToggleFilterCheckbox Bool
+    | ToggleRespectWordBoundariesCheckbox Bool
+    | ToggleSortCheckbox Bool
+    | SetConjunction Sifter.ConjunctionType
 
 
 update : Msg -> Model -> Model
@@ -71,6 +75,49 @@ update msg model =
                     { old_config | limit = limit }
             in
                 { model | limit = text, config = config }
+
+        ToggleFilterCheckbox value ->
+            let
+                old_config =
+                    model.config
+
+                config =
+                    { old_config | filter = value }
+            in
+                { model | config = config }
+
+        ToggleRespectWordBoundariesCheckbox value ->
+            let
+                old_config =
+                    model.config
+
+                config =
+                    { old_config | respectWordBoundaries = value }
+            in
+                { model | config = config }
+
+        SetConjunction value ->
+            let
+                old_config =
+                    model.config
+
+                config =
+                    { old_config | conjunction = value }
+            in
+                { model | config = config }
+
+        ToggleSortCheckbox value ->
+            let
+                old_config =
+                    model.config
+
+                config =
+                    if value then
+                        { old_config | sort = Just { field = .city, order = Sifter.Ascending } }
+                    else
+                        { old_config | sort = Nothing }
+            in
+                { model | config = config }
 
 
 
@@ -111,7 +158,7 @@ sideBar model =
                 ]
                 []
             ]
-        , div [ class "form-check" ]
+        , div [ class "form-check form-check-inline" ]
             [ input
                 [ id "city-checkbox"
                 , class "form-check-input"
@@ -125,7 +172,7 @@ sideBar model =
                 ]
                 [ text "City" ]
             ]
-        , div [ class "form-check" ]
+        , div [ class "form-check form-check-inline" ]
             [ input
                 [ id "state-abbrev-checkbox"
                 , class "form-check-input"
@@ -139,7 +186,7 @@ sideBar model =
                 ]
                 [ text "State Abbrev" ]
             ]
-        , div [ class "form-check" ]
+        , div [ class "form-check form-check-inline" ]
             [ input
                 [ id "state-checkbox"
                 , class "form-check-input"
@@ -152,6 +199,83 @@ sideBar model =
                 , for "state-checkbox"
                 ]
                 [ text "State" ]
+            ]
+        , div [ class "form-check" ]
+            [ input
+                [ id "filter-checkbox"
+                , class "form-check-input"
+                , type_ "checkbox"
+                , checked model.config.filter
+                , onCheck ToggleFilterCheckbox
+                ]
+                []
+            , label
+                [ class "form-check-label"
+                , for "filter-checkbox"
+                ]
+                [ text "Filter" ]
+            ]
+        , div [ class "form-check" ]
+            [ input
+                [ id "respect-word-boundaries-checkbox"
+                , class "form-check-input"
+                , type_ "checkbox"
+                , checked model.config.respectWordBoundaries
+                , onCheck ToggleRespectWordBoundariesCheckbox
+                ]
+                []
+            , label
+                [ class "form-check-label"
+                , for "respect-word-boundaries-checkbox"
+                ]
+                [ text "Respect Word Boundaries" ]
+            ]
+        , div [ class "form-check form-check-inline" ]
+            [ input
+                [ id "conjunction-and-radio"
+                , name "conjunction-radio"
+                , class "form-check-input"
+                , type_ "radio"
+                , checked (model.config.conjunction == Sifter.And)
+                , onClick (SetConjunction Sifter.And)
+                ]
+                []
+            , label
+                [ class "form-check-label"
+                , for "conjunction-and-radio"
+                ]
+                [ text "And" ]
+            ]
+        , div [ class "form-check form-check-inline" ]
+            [ input
+                [ id "conjunction-or-radio"
+                , name "conjunction-radio"
+                , class "form-check-input"
+                , type_ "radio"
+                , checked (model.config.conjunction == Sifter.Or)
+                , onClick (SetConjunction Sifter.Or)
+                ]
+                []
+            , label
+                [ class "form-check-label"
+                , for "conjunction-or-radio"
+                ]
+                [ text "Or" ]
+            ]
+        , div [ class "form-check" ]
+            [ input
+                [ id "sort-checkbox"
+                , class "form-check-input"
+                , type_ "checkbox"
+                , checked (model.config.sort /= Nothing)
+                , onCheck ToggleSortCheckbox
+                ]
+                []
+            , label
+                [ class "form-check-label"
+                , for "sort-checkbox"
+                ]
+                [ text "Sort" ]
             ]
         , showConfig model.config
         ]
