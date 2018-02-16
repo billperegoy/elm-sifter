@@ -160,10 +160,10 @@ sortFunction : SortField a -> ScoredResult a -> ScoredResult a -> Order
 sortFunction sortField a b =
     if (Tuple.first a) == (Tuple.first b) then
         case sortField.order of
-            Ascending ->
+            Descending ->
                 compare (sortField.field (Tuple.second a)) (sortField.field (Tuple.second b))
 
-            Descending ->
+            Ascending ->
                 compare (sortField.field (Tuple.second b)) (sortField.field (Tuple.second a))
     else
         compare (Tuple.first a) (Tuple.first b)
