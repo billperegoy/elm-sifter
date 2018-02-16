@@ -24,8 +24,7 @@ type alias Place =
 
 
 type alias Model =
-    { limit : String
-    , inputText : String
+    { inputText : String
     , places : List Place
     , config : Sifter.Config Place
     }
@@ -33,8 +32,7 @@ type alias Model =
 
 init : Model
 init =
-    { limit = "10"
-    , inputText = ""
+    { inputText = ""
     , places = Places.all
     , config = config
     }
@@ -67,7 +65,7 @@ update msg model =
                 config =
                     { old_config | limit = limit }
             in
-                { model | limit = text, config = config }
+                { model | config = config }
 
         ToggleFilterCheckbox value ->
             let
