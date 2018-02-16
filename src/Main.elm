@@ -55,6 +55,7 @@ type Msg
     | ToggleRespectWordBoundariesCheckbox Bool
     | ToggleSortCheckbox Bool
     | SetConjunction Sifter.ConjunctionType
+    | SetSortOrder Sifter.SortOrder
 
 
 update : Msg -> Model -> Model
@@ -119,6 +120,25 @@ update msg model =
             in
                 { model | config = config }
 
+        SetSortOrder value ->
+            let
+                old_config =
+                    model.config
+
+                config =
+                    case model.config.sort of
+                        Nothing ->
+                            old_config
+
+                        Just s ->
+                            let
+                                new_sort =
+                                    { s | order = value }
+                            in
+                                { old_config | sort = Just new_sort }
+            in
+                { model | config = config }
+
 
 
 -- View
@@ -145,20 +165,38 @@ header =
         ]
 
 
-sideBar : Model -> Html Msg
-sideBar model =
+sideBar : Sifter.Config Place -> Html Msg
+sideBar config =
     div [ class "col-8" ]
-        [ div [ class "form-group" ]
-            [ label [ for "limit-input" ] [ text "limit" ]
-            , input
-                [ id "limit-input"
-                , class "form-control"
-                , value (toString model.config.limit)
-                , onInput SetLimit
-                ]
-                []
+        [ limitInput config
+        , fieldSelectCheckboxes config
+        , filterCheckbox config
+        , wordBoundariesCheckbox config
+        , conjunctionRadio config
+        , sortCheckbox config
+        , sortDetails config
+        , showConfig config
+        ]
+
+
+limitInput : Sifter.Config Place -> Html Msg
+limitInput config =
+    div [ class "form-group" ]
+        [ label [ for "limit-input" ] [ text "limit" ]
+        , input
+            [ id "limit-input"
+            , class "form-control"
+            , value (toString config.limit)
+            , onInput SetLimit
             ]
-        , div [ class "form-check form-check-inline" ]
+            []
+        ]
+
+
+fieldSelectCheckboxes : Sifter.Config Place -> Html Msg
+fieldSelectCheckboxes config =
+    div []
+        [ div [ class "form-check form-check-inline" ]
             [ input
                 [ id "city-checkbox"
                 , class "form-check-input"
@@ -200,43 +238,57 @@ sideBar model =
                 ]
                 [ text "State" ]
             ]
-        , div [ class "form-check" ]
-            [ input
-                [ id "filter-checkbox"
-                , class "form-check-input"
-                , type_ "checkbox"
-                , checked model.config.filter
-                , onCheck ToggleFilterCheckbox
-                ]
-                []
-            , label
-                [ class "form-check-label"
-                , for "filter-checkbox"
-                ]
-                [ text "Filter" ]
+        ]
+
+
+filterCheckbox : Sifter.Config Place -> Html Msg
+filterCheckbox config =
+    div [ class "form-check" ]
+        [ input
+            [ id "filter-checkbox"
+            , class "form-check-input"
+            , type_ "checkbox"
+            , checked config.filter
+            , onCheck ToggleFilterCheckbox
             ]
-        , div [ class "form-check" ]
-            [ input
-                [ id "respect-word-boundaries-checkbox"
-                , class "form-check-input"
-                , type_ "checkbox"
-                , checked model.config.respectWordBoundaries
-                , onCheck ToggleRespectWordBoundariesCheckbox
-                ]
-                []
-            , label
-                [ class "form-check-label"
-                , for "respect-word-boundaries-checkbox"
-                ]
-                [ text "Respect Word Boundaries" ]
+            []
+        , label
+            [ class "form-check-label"
+            , for "filter-checkbox"
             ]
-        , div [ class "form-check form-check-inline" ]
+            [ text "Filter" ]
+        ]
+
+
+wordBoundariesCheckbox : Sifter.Config Place -> Html Msg
+wordBoundariesCheckbox config =
+    div [ class "form-check" ]
+        [ input
+            [ id "respect-word-boundaries-checkbox"
+            , class "form-check-input"
+            , type_ "checkbox"
+            , checked config.respectWordBoundaries
+            , onCheck ToggleRespectWordBoundariesCheckbox
+            ]
+            []
+        , label
+            [ class "form-check-label"
+            , for "respect-word-boundaries-checkbox"
+            ]
+            [ text "Respect Word Boundaries" ]
+        ]
+
+
+conjunctionRadio : Sifter.Config Place -> Html Msg
+conjunctionRadio config =
+    div []
+        [ div [ class "form-check form-check-inline" ]
             [ input
                 [ id "conjunction-and-radio"
                 , name "conjunction-radio"
                 , class "form-check-input"
                 , type_ "radio"
-                , checked (model.config.conjunction == Sifter.And)
+                , checked (config.conjunction == Sifter.And)
                 , onClick (SetConjunction Sifter.And)
                 ]
                 []
@@ -252,7 +304,7 @@ sideBar model =
                 , name "conjunction-radio"
                 , class "form-check-input"
                 , type_ "radio"
-                , checked (model.config.conjunction == Sifter.Or)
+                , checked (config.conjunction == Sifter.Or)
                 , onClick (SetConjunction Sifter.Or)
                 ]
                 []
@@ -262,27 +314,77 @@ sideBar model =
                 ]
                 [ text "Or" ]
             ]
-        , div [ class "form-check" ]
+        ]
+
+
+sortCheckbox : Sifter.Config Place -> Html Msg
+sortCheckbox config =
+    div [ class "form-check" ]
+        [ input
+            [ id "sort-checkbox"
+            , class "form-check-input"
+            , type_ "checkbox"
+            , checked (config.sort /= Nothing)
+            , onCheck ToggleSortCheckbox
+            ]
+            []
+        , label
+            [ class "form-check-label"
+            , for "sort-checkbox"
+            ]
+            [ text "Sort" ]
+        ]
+
+
+sortDetails : Sifter.Config Place -> Html Msg
+sortDetails config =
+    if config.sort /= Nothing then
+        div [ class "form-check form-check-inline" ]
             [ input
-                [ id "sort-checkbox"
+                [ id "sort-ascending-radio"
+                , name "sort-radio"
                 , class "form-check-input"
-                , type_ "checkbox"
-                , checked (model.config.sort /= Nothing)
-                , onCheck ToggleSortCheckbox
+                , type_ "radio"
+                , checked (orderChecked config.sort Sifter.Ascending)
+                , onClick (SetSortOrder Sifter.Ascending)
                 ]
                 []
             , label
                 [ class "form-check-label"
-                , for "sort-checkbox"
+                , for "sort-radio"
                 ]
-                [ text "Sort" ]
+                [ text "Ascending" ]
+            , input
+                [ id "sort-decending-radio"
+                , name "sort-radio"
+                , class "form-check-input"
+                , type_ "radio"
+                , checked (orderChecked config.sort Sifter.Descending)
+                , onClick (SetSortOrder Sifter.Descending)
+                ]
+                []
+            , label
+                [ class "form-check-label"
+                , for "sort-radio"
+                ]
+                [ text "Descending" ]
             ]
-        , showConfig model.config
-        ]
+    else
+        div [] []
 
 
-mainContent : Model -> Html Msg
-mainContent model =
+orderChecked : Maybe (SortField Place) -> Sifter.SortOrder -> Bool
+orderChecked sort order =
+    case sort of
+        Nothing ->
+            True
+
+        Just s ->
+            s.order == order
+
+
+searchContent : Model -> Html Msg
+searchContent model =
     let
         places =
             filteredPlaces model.config model.inputText model.places
@@ -308,8 +410,8 @@ mainContent model =
 mainBody : Model -> Html Msg
 mainBody model =
     div [ class "row" ]
-        [ sideBar model
-        , mainContent model
+        [ sideBar model.config
+        , searchContent model
         ]
 
 
