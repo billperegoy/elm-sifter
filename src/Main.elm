@@ -16,10 +16,6 @@ main =
         }
 
 
-
--- Model
-
-
 type alias Place =
     { city : String
     , stateAbbrev : String
@@ -42,10 +38,6 @@ init =
     , places = Places.all
     , config = config
     }
-
-
-
--- Update
 
 
 type Msg
@@ -138,10 +130,6 @@ update msg model =
                                 { old_config | sort = Just new_sort }
             in
                 { model | config = config }
-
-
-
--- View
 
 
 view : Model -> Html Msg
@@ -387,7 +375,7 @@ searchContent : Model -> Html Msg
 searchContent model =
     let
         places =
-            filteredPlaces model.config model.inputText model.places
+            Sifter.sifter model.config model.inputText model.places
     in
         div [ class "col-4" ]
             [ div [ class "form-group" ]
@@ -504,8 +492,3 @@ config =
     , conjunction = Sifter.And
     , respectWordBoundaries = False
     }
-
-
-filteredPlaces : Sifter.Config Place -> String -> List Place -> List Place
-filteredPlaces config string places =
-    Sifter.sifter config string places
