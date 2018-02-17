@@ -8,7 +8,7 @@ import Sifter exposing (..)
 all : Test
 all =
     describe "A Test Suite"
-        [ test "Score 1" <|
+        [ test "A complete match from te string beginning scores 1.5" <|
             \() ->
                 let
                     matchResult =
@@ -20,7 +20,19 @@ all =
                         ]
                 in
                     Expect.equal (computeScore "abc" matchResult) 1.5
-        , test "Score 2" <|
+        , test "A match of half the string not at the string start scores 0.5" <|
+            \() ->
+                let
+                    matchResult =
+                        [ { match = "cd"
+                          , submatches = []
+                          , index = 2
+                          , number = 1
+                          }
+                        ]
+                in
+                    Expect.equal (computeScore "abcd" matchResult) 0.5
+        , test "A match of half the string at the string start scores 1.0" <|
             \() ->
                 let
                     matchResult =

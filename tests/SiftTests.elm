@@ -196,4 +196,14 @@ all =
                         sifter multiConfig "johnson" data
                 in
                     Expect.equal result []
+        , test "If respectWordBoundaries is set, it doesn't match in middle of string" <|
+            \() ->
+                let
+                    config =
+                        { nameConfig | respectWordBoundaries = True }
+
+                    result =
+                        sifter config "os" [ { name = "Jose" } ]
+                in
+                    Expect.equal result []
         ]

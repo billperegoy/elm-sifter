@@ -56,8 +56,8 @@ reducer conjunction list =
                 0.0
 
 
-matchAgainstAllExtractors : ConjunctionType -> String -> a -> List (Extractor a) -> ScoredResult a
-matchAgainstAllExtractors conjunction string elem extractors =
+matchAgainstAllExtractors : Bool -> ConjunctionType -> String -> a -> List (Extractor a) -> ScoredResult a
+matchAgainstAllExtractors respectWordBoundaries conjunction string elem extractors =
     let
         score =
             case extractors of
@@ -66,7 +66,7 @@ matchAgainstAllExtractors conjunction string elem extractors =
 
                 list ->
                     list
-                        |> List.map (\extractor -> matchTokens conjunction extractor string elem)
+                        |> List.map (\extractor -> matchTokens respectWordBoundaries conjunction extractor string elem)
                         |> reducer Or
     in
         ( score, elem )
@@ -77,23 +77,29 @@ tokenizeString string =
     String.words string
 
 
-matchTokens : ConjunctionType -> Extractor a -> String -> a -> ScoredResult a
-matchTokens conjunction extractor string elem =
+matchTokens : Bool -> ConjunctionType -> Extractor a -> String -> a -> ScoredResult a
+matchTokens respectWordBoundaries conjunction extractor string elem =
     let
         score =
             string
                 |> tokenizeString
-                |> List.map (\token -> matchOne extractor token elem)
+                |> List.map (\token -> matchOne extractor respectWordBoundaries token elem)
                 |> reducer conjunction
     in
         ( score, elem )
 
 
-matchOne : Extractor a -> String -> a -> ScoredResult a
-matchOne extractor string elem =
+matchOne : Extractor a -> Bool -> String -> a -> ScoredResult a
+matchOne extractor respectWordBoundaries string elem =
     let
+        stringMatcher =
+            if respectWordBoundaries then
+                "^" ++ string
+            else
+                string
+
         matcher =
-            string
+            stringMatcher
                 |> Regex.regex
                 |> Regex.caseInsensitive
 
@@ -205,4 +211,4 @@ limitResults limit results =
 
 scoreDataSet : Config a -> String -> List a -> List (ScoredResult a)
 scoreDataSet config string data =
-    List.map (\datum -> matchAgainstAllExtractors config.conjunction string datum config.extractors) data
+    List.map (\datum -> matchAgainstAllExtractors config.respectWordBoundaries config.conjunction string datum config.extractors) data
