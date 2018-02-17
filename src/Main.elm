@@ -34,7 +34,7 @@ init : Model
 init =
     { inputText = ""
     , places = Places.all
-    , config = config
+    , config = initConfig
     }
 
 
@@ -46,6 +46,7 @@ type Msg
     | ToggleSortCheckbox Bool
     | SetConjunction Sifter.ConjunctionType
     | SetSortOrder Sifter.SortOrder
+    | UpdateExtractorList (Sifter.Extractor Place) Bool
 
 
 update : Msg -> Model -> Model
@@ -129,6 +130,32 @@ update msg model =
             in
                 { model | config = config }
 
+        UpdateExtractorList extractor value ->
+            let
+                old_config =
+                    model.config
+            in
+                if value then
+                    let
+                        newExtractors =
+                            extractor :: model.config.extractors
+
+                        config =
+                            { old_config | extractors = newExtractors }
+                    in
+                        { model | config = config }
+                else
+                    let
+                        newExtractors =
+                            List.filter
+                                (\x -> not (extractorsEqual x extractor))
+                                model.config.extractors
+
+                        config =
+                            { old_config | extractors = newExtractors }
+                    in
+                        { model | config = config }
+
 
 view : Model -> Html Msg
 view model =
@@ -179,6 +206,30 @@ limitInput config =
         ]
 
 
+extractorsEqual : Sifter.Extractor Place -> Sifter.Extractor Place -> Bool
+extractorsEqual e1 e2 =
+    let
+        place =
+            { city = "city"
+            , stateAbbrev = "stateAbbrev"
+            , state = "state"
+            }
+    in
+        e1 place == e2 place
+
+
+configContains : List (Sifter.Extractor Place) -> Sifter.Extractor Place -> Bool
+configContains extractors extractor =
+    let
+        place =
+            { city = "city"
+            , stateAbbrev = "stateAbbrev"
+            , state = "state"
+            }
+    in
+        List.any (\x -> x place == extractor place) extractors
+
+
 fieldSelectCheckboxes : Sifter.Config Place -> Html Msg
 fieldSelectCheckboxes config =
     div []
@@ -187,7 +238,8 @@ fieldSelectCheckboxes config =
                 [ id "city-checkbox"
                 , class "form-check-input"
                 , type_ "checkbox"
-                , checked True
+                , checked (configContains config.extractors .city)
+                , onCheck (UpdateExtractorList .city)
                 ]
                 []
             , label
@@ -201,7 +253,8 @@ fieldSelectCheckboxes config =
                 [ id "state-abbrev-checkbox"
                 , class "form-check-input"
                 , type_ "checkbox"
-                , checked True
+                , checked (configContains config.extractors .stateAbbrev)
+                , onCheck (UpdateExtractorList .stateAbbrev)
                 ]
                 []
             , label
@@ -215,7 +268,8 @@ fieldSelectCheckboxes config =
                 [ id "state-checkbox"
                 , class "form-check-input"
                 , type_ "checkbox"
-                , checked True
+                , checked (configContains config.extractors .state)
+                , onCheck (UpdateExtractorList .state)
                 ]
                 []
             , label
@@ -477,8 +531,8 @@ showConfig config =
         ]
 
 
-config : Sifter.Config Place
-config =
+initConfig : Sifter.Config Place
+initConfig =
     { extractors = [ .city, .stateAbbrev, .state ]
     , limit = 10
     , sort =
