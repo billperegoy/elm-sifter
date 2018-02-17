@@ -47,6 +47,7 @@ type Msg
     | SetConjunction Sifter.ConjunctionType
     | SetSortOrder Sifter.SortOrder
     | UpdateExtractorList (Sifter.Extractor Place) Bool
+    | SetFilterField (Sifter.Extractor Place)
 
 
 update : Msg -> Model -> Model
@@ -155,6 +156,27 @@ update msg model =
                             { old_config | extractors = newExtractors }
                     in
                         { model | config = config }
+
+        SetFilterField extractor ->
+            let
+                config =
+                    model.config
+
+                sort =
+                    config.sort
+
+                newSort =
+                    case sort of
+                        Nothing ->
+                            sort
+
+                        Just s ->
+                            Just { s | field = extractor }
+
+                newConfig =
+                    { config | sort = newSort }
+            in
+                { model | config = newConfig }
 
 
 view : Model -> Html Msg
@@ -319,6 +341,69 @@ wordBoundariesCheckbox config =
         ]
 
 
+sortFieldRadio : Sifter.Config Place -> Html Msg
+sortFieldRadio config =
+    let
+        sortExtractor =
+            case config.sort of
+                Nothing ->
+                    .city
+
+                Just a ->
+                    a.field
+    in
+        div []
+            [ div [ class "form-check form-check-inline" ]
+                [ input
+                    [ id "filter-city-radio"
+                    , name "filter-radio"
+                    , class "form-check-input"
+                    , type_ "radio"
+                    , checked (extractorsEqual sortExtractor .city)
+                    , onClick (SetFilterField .city)
+                    ]
+                    []
+                , label
+                    [ class "form-check-label"
+                    , for "filter-city-radio"
+                    ]
+                    [ text "City" ]
+                ]
+            , div [ class "form-check form-check-inline" ]
+                [ input
+                    [ id "filter-stateAbbrev-radio"
+                    , name "filter-radio"
+                    , class "form-check-input"
+                    , type_ "radio"
+                    , checked (extractorsEqual sortExtractor .stateAbbrev)
+                    , onClick (SetFilterField .stateAbbrev)
+                    ]
+                    []
+                , label
+                    [ class "form-check-label"
+                    , for "filter-stateAbbrev-radio"
+                    ]
+                    [ text "State Abbrev" ]
+                ]
+            , div [ class "form-check form-check-inline" ]
+                [ input
+                    [ id "filter-state-radio"
+                    , name "filter-radio"
+                    , class "form-check-input"
+                    , type_ "radio"
+                    , checked (extractorsEqual sortExtractor .state)
+                    , onClick (SetFilterField .state)
+                    ]
+                    []
+                , label
+                    [ class "form-check-label"
+                    , for "filter-state-radio"
+                    ]
+                    [ text "State" ]
+                ]
+            ]
+
+
 conjunctionRadio : Sifter.Config Place -> Html Msg
 conjunctionRadio config =
     div []
@@ -379,35 +464,38 @@ sortCheckbox config =
 sortDetails : Sifter.Config Place -> Html Msg
 sortDetails config =
     if config.sort /= Nothing then
-        div [ class "form-check form-check-inline" ]
-            [ input
-                [ id "sort-ascending-radio"
-                , name "sort-radio"
-                , class "form-check-input"
-                , type_ "radio"
-                , checked (orderChecked config.sort Sifter.Ascending)
-                , onClick (SetSortOrder Sifter.Ascending)
+        div []
+            [ sortFieldRadio config
+            , div [ class "form-check form-check-inline" ]
+                [ input
+                    [ id "sort-ascending-radio"
+                    , name "sort-radio"
+                    , class "form-check-input"
+                    , type_ "radio"
+                    , checked (orderChecked config.sort Sifter.Ascending)
+                    , onClick (SetSortOrder Sifter.Ascending)
+                    ]
+                    []
+                , label
+                    [ class "form-check-label"
+                    , for "sort-radio"
+                    ]
+                    [ text "Ascending" ]
+                , input
+                    [ id "sort-decending-radio"
+                    , name "sort-radio"
+                    , class "form-check-input"
+                    , type_ "radio"
+                    , checked (orderChecked config.sort Sifter.Descending)
+                    , onClick (SetSortOrder Sifter.Descending)
+                    ]
+                    []
+                , label
+                    [ class "form-check-label"
+                    , for "sort-radio"
+                    ]
+                    [ text "Descending" ]
                 ]
-                []
-            , label
-                [ class "form-check-label"
-                , for "sort-radio"
-                ]
-                [ text "Ascending" ]
-            , input
-                [ id "sort-decending-radio"
-                , name "sort-radio"
-                , class "form-check-input"
-                , type_ "radio"
-                , checked (orderChecked config.sort Sifter.Descending)
-                , onClick (SetSortOrder Sifter.Descending)
-                ]
-                []
-            , label
-                [ class "form-check-label"
-                , for "sort-radio"
-                ]
-                [ text "Descending" ]
             ]
     else
         div [] []
@@ -537,7 +625,7 @@ initConfig =
     , limit = 10
     , sort =
         Just
-            { field = .city
+            { field = .state
             , order = Sifter.Ascending
             }
     , filter = True
