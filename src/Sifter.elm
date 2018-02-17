@@ -187,6 +187,7 @@ sortResults sortField results =
         Nothing ->
             results
                 |> List.sortBy Tuple.first
+                |> List.reverse
 
         Just field ->
             sortByField field results

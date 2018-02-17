@@ -69,7 +69,7 @@ all =
                         sifter nameConfig "mary" [ { name = "Joe" } ]
                 in
                     Expect.equal result []
-        , test "Can return more than one  match" <|
+        , test "Can return more than one match" <|
             \() ->
                 let
                     data =
@@ -82,8 +82,28 @@ all =
                         sifter nameConfig "joe" data
                 in
                     Expect.equal result
+                        [ { name = "Joe Smith" }
+                        , { name = "Joe Johnson" }
+                        ]
+        , test "Setting filter to false returns all results" <|
+            \() ->
+                let
+                    config =
+                        { nameConfig | filter = False }
+
+                    data =
                         [ { name = "Joe Johnson" }
                         , { name = "Joe Smith" }
+                        , { name = "Jane Doe" }
+                        ]
+
+                    result =
+                        sifter config "joe" data
+                in
+                    Expect.equal result
+                        [ { name = "Joe Smith" }
+                        , { name = "Joe Johnson" }
+                        , { name = "Jane Doe" }
                         ]
         , test "Can limit results" <|
             \() ->
@@ -100,7 +120,7 @@ all =
                     result =
                         sifter config "joe" data
                 in
-                    Expect.equal result [ { name = "Joe Johnson" } ]
+                    Expect.equal result [ { name = "Joe Smith" } ]
         , test "Can handle multiple tokens in a search string with Or conjunction" <|
             \() ->
                 let
@@ -113,7 +133,7 @@ all =
                     result =
                         sifter nameConfig "smith joe" data
                 in
-                    Expect.equal result [ { name = "Joe Johnson" }, { name = "Joe Smith" } ]
+                    Expect.equal result [ { name = "Joe Smith" }, { name = "Joe Johnson" } ]
         , test "Can handle multiple tokens in a search string with And conjunction" <|
             \() ->
                 let
@@ -145,8 +165,8 @@ all =
                         sifter config "johnson" data
                 in
                     Expect.equal result
-                        [ { name = "Joe Johnson", address = "Hill St" }
-                        , { name = "Jane Doe", address = "Johnson St" }
+                        [ { name = "Jane Doe", address = "Johnson St" }
+                        , { name = "Joe Johnson", address = "Hill St" }
                         ]
         , test "Only searches with supplied extractors" <|
             \() ->
