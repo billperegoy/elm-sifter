@@ -60,9 +60,14 @@ matchAgainstAllExtractors : ConjunctionType -> String -> a -> List (Extractor a)
 matchAgainstAllExtractors conjunction string elem extractors =
     let
         score =
-            extractors
-                |> List.map (\extractor -> matchTokens conjunction extractor string elem)
-                |> reducer Or
+            case extractors of
+                [] ->
+                    0
+
+                list ->
+                    list
+                        |> List.map (\extractor -> matchTokens conjunction extractor string elem)
+                        |> reducer Or
     in
         ( score, elem )
 

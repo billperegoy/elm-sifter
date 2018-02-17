@@ -164,4 +164,16 @@ all =
                 in
                     Expect.equal result
                         [ { name = "Jane Doe", address = "Johnson St" } ]
+        , test "If no extractors are provided, returns an empty list" <|
+            \() ->
+                let
+                    data =
+                        [ { name = "Joe Johnson", address = "Hill St" }
+                        , { name = "Jane Doe", address = "Johnson St" }
+                        ]
+
+                    result =
+                        sifter multiConfig "johnson" data
+                in
+                    Expect.equal result []
         ]
