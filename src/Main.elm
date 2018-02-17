@@ -203,12 +203,19 @@ header =
 sideBar : Sifter.Config Place -> Html Msg
 sideBar config =
     div [ class "col-4" ]
-        [ limitInput config
-        , fieldSelectCheckboxes config
+        [ fieldSelectCheckboxes config
+        , sortForm config
+        , conjunctionRadio config
         , filterCheckbox config
         , wordBoundariesCheckbox config
-        , conjunctionRadio config
-        , sortCheckbox config
+        , limitInput config
+        ]
+
+
+sortForm : Sifter.Config Place -> Html Msg
+sortForm config =
+    div [ style [ ( "margin-bottom", "10px" ) ] ]
+        [ sortCheckbox config
         , sortDetails config
         ]
 
@@ -253,8 +260,8 @@ configContains extractors extractor =
 
 fieldSelectCheckboxes : Sifter.Config Place -> Html Msg
 fieldSelectCheckboxes config =
-    div []
-        [ h5 [] [ text "Fields" ]
+    div [ style [ ( "margin-bottom", "10px" ) ] ]
+        [ h5 [ style [ ( "margin-bottom", "0" ) ] ] [ text "Extractors" ]
         , div [ class "form-check form-check-inline" ]
             [ input
                 [ id "city-checkbox"
@@ -406,8 +413,8 @@ sortFieldRadio config =
 
 conjunctionRadio : Sifter.Config Place -> Html Msg
 conjunctionRadio config =
-    div []
-        [ h5 [] [ text "Conjunction" ]
+    div [ style [ ( "margin-bottom", "10px" ) ] ]
+        [ h5 [ style [ ( "margin-bottom", "0" ) ] ] [ text "Conjunction" ]
         , div [ class "form-check form-check-inline" ]
             [ input
                 [ id "conjunction-and-radio"
@@ -446,7 +453,7 @@ conjunctionRadio config =
 sortCheckbox : Sifter.Config Place -> Html Msg
 sortCheckbox config =
     div []
-        [ h5 [] [ text "Sort" ]
+        [ h5 [ style [ ( "margin-bottom", "0" ) ] ] [ text "Sort" ]
         , div [ class "form-check" ]
             [ input
                 [ id "sort-checkbox"
@@ -625,11 +632,11 @@ showConfig config =
             [ code []
                 [ text
                     (extractorsString config
-                        ++ limitString config
-                        ++ conjunctionString config
-                        ++ respectWordBoundariesString config
                         ++ sortString config
+                        ++ conjunctionString config
                         ++ filterString config
+                        ++ respectWordBoundariesString config
+                        ++ limitString config
                         ++ "    }\n"
                     )
                 ]
