@@ -202,7 +202,7 @@ header =
 
 sideBar : Sifter.Config Place -> Html Msg
 sideBar config =
-    div [ class "col-8" ]
+    div [ class "col-4" ]
         [ limitInput config
         , fieldSelectCheckboxes config
         , filterCheckbox config
@@ -210,7 +210,6 @@ sideBar config =
         , conjunctionRadio config
         , sortCheckbox config
         , sortDetails config
-        , showConfig config
         ]
 
 
@@ -255,7 +254,8 @@ configContains extractors extractor =
 fieldSelectCheckboxes : Sifter.Config Place -> Html Msg
 fieldSelectCheckboxes config =
     div []
-        [ div [ class "form-check form-check-inline" ]
+        [ h5 [] [ text "Fields" ]
+        , div [ class "form-check form-check-inline" ]
             [ input
                 [ id "city-checkbox"
                 , class "form-check-input"
@@ -407,7 +407,8 @@ sortFieldRadio config =
 conjunctionRadio : Sifter.Config Place -> Html Msg
 conjunctionRadio config =
     div []
-        [ div [ class "form-check form-check-inline" ]
+        [ h5 [] [ text "Conjunction" ]
+        , div [ class "form-check form-check-inline" ]
             [ input
                 [ id "conjunction-and-radio"
                 , name "conjunction-radio"
@@ -444,20 +445,23 @@ conjunctionRadio config =
 
 sortCheckbox : Sifter.Config Place -> Html Msg
 sortCheckbox config =
-    div [ class "form-check" ]
-        [ input
-            [ id "sort-checkbox"
-            , class "form-check-input"
-            , type_ "checkbox"
-            , checked (config.sort /= Nothing)
-            , onCheck ToggleSortCheckbox
+    div []
+        [ h5 [] [ text "Sort" ]
+        , div [ class "form-check" ]
+            [ input
+                [ id "sort-checkbox"
+                , class "form-check-input"
+                , type_ "checkbox"
+                , checked (config.sort /= Nothing)
+                , onCheck ToggleSortCheckbox
+                ]
+                []
+            , label
+                [ class "form-check-label"
+                , for "sort-checkbox"
+                ]
+                [ text "Sort" ]
             ]
-            []
-        , label
-            [ class "form-check-label"
-            , for "sort-checkbox"
-            ]
-            [ text "Sort" ]
         ]
 
 
@@ -517,7 +521,7 @@ searchContent model =
         places =
             Sifter.sifter model.config model.inputText model.places
     in
-        div [ class "col-4" ]
+        div [ class "col-3" ]
             [ div [ class "form-group" ]
                 [ label [ for "seartch-input" ] [ text "Search" ]
                 , input
@@ -527,9 +531,15 @@ searchContent model =
                     ]
                     []
                 ]
-            , ul []
+            , h4 [] [ text "Search Results" ]
+            , table [ class "table table-bordered" ]
                 (List.map
-                    (\e -> li [] [ text (e.city ++ ", " ++ e.stateAbbrev) ])
+                    (\e ->
+                        tr []
+                            [ td []
+                                [ text (e.city ++ ", " ++ e.stateAbbrev) ]
+                            ]
+                    )
                     places
                 )
             ]
@@ -539,6 +549,7 @@ mainBody : Model -> Html Msg
 mainBody model =
     div [ class "row" ]
         [ sideBar model.config
+        , showConfig model.config
         , searchContent model
         ]
 
@@ -551,7 +562,7 @@ extractorsString config =
                 |> List.map (\x -> getExtractorName x)
                 |> String.join (", ")
     in
-        "    { extractors = [ " ++ extractorStrings ++ " ]\n"
+        "    { extractors = \n" ++ "      [ " ++ extractorStrings ++ " ]\n"
 
 
 limitString : Sifter.Config Place -> String
@@ -576,7 +587,8 @@ sortString config =
             "    , sort = Nothing\n"
 
         Just sort ->
-            "    , sort = Just { "
+            "    , sort =\n"
+                ++ "      Just { "
                 ++ "field = "
                 ++ getExtractorName sort.field
                 ++ ", order = "
@@ -603,18 +615,19 @@ getExtractorName extractor =
 
 showConfig : Sifter.Config Place -> Html Msg
 showConfig config =
-    pre [ style [ ( "margin-top", "30px" ) ] ]
-        [ code []
-            [ text
-                ("    config =\n"
-                    ++ extractorsString config
-                    ++ limitString config
-                    ++ conjunctionString config
-                    ++ respectWordBoundariesString config
-                    ++ sortString config
-                    ++ filterString config
-                    ++ "    }\n"
-                )
+    div [ class "col-5" ]
+        [ pre [ style [ ( "margin-top", "30px" ) ] ]
+            [ code []
+                [ text
+                    (extractorsString config
+                        ++ limitString config
+                        ++ conjunctionString config
+                        ++ respectWordBoundariesString config
+                        ++ sortString config
+                        ++ filterString config
+                        ++ "    }\n"
+                    )
+                ]
             ]
         ]
 
