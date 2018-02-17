@@ -206,4 +206,17 @@ all =
                         sifter config "os" [ { name = "Jose" } ]
                 in
                     Expect.equal result []
+        , test "With respectWordBoundaries and conjunction And" <|
+            \() ->
+                let
+                    config =
+                        { nameConfig
+                            | conjunction = And
+                            , respectWordBoundaries = True
+                        }
+
+                    result =
+                        sifter config "orth andover" [ { name = "North Andover" } ]
+                in
+                    Expect.equal result []
         ]
