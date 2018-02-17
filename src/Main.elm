@@ -638,7 +638,7 @@ initConfig =
     , limit = 10
     , sort =
         Just
-            { field = .state
+            { field = .city
             , order = Sifter.Ascending
             }
     , filter = True
