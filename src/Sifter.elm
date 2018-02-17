@@ -56,35 +56,30 @@ reducer conjunction list =
                 0.0
 
 
-matchAgainstAllExtractors : Bool -> ConjunctionType -> String -> a -> List (Extractor a) -> ScoredResult a
-matchAgainstAllExtractors respectWordBoundaries conjunction string elem extractors =
+matchAgainstAllExtractors : Config a -> String -> a -> ScoredResult a
+matchAgainstAllExtractors config string elem =
     let
         score =
-            case extractors of
+            case config.extractors of
                 [] ->
                     0
 
                 list ->
                     list
-                        |> List.map (\extractor -> matchTokens respectWordBoundaries conjunction extractor string elem)
+                        |> List.map (\extractor -> matchTokens config extractor string elem)
                         |> reducer Or
     in
         ( score, elem )
 
 
-tokenizeString : String -> List String
-tokenizeString string =
-    String.words string
-
-
-matchTokens : Bool -> ConjunctionType -> Extractor a -> String -> a -> ScoredResult a
-matchTokens respectWordBoundaries conjunction extractor string elem =
+matchTokens : Config a -> Extractor a -> String -> a -> ScoredResult a
+matchTokens config extractor string elem =
     let
         score =
             string
-                |> tokenizeString
-                |> List.map (\token -> matchOne extractor respectWordBoundaries token elem)
-                |> reducer conjunction
+                |> String.words
+                |> List.map (\token -> matchOne extractor config.respectWordBoundaries token elem)
+                |> reducer config.conjunction
     in
         ( score, elem )
 
@@ -211,4 +206,4 @@ limitResults limit results =
 
 scoreDataSet : Config a -> String -> List a -> List (ScoredResult a)
 scoreDataSet config string data =
-    List.map (\datum -> matchAgainstAllExtractors config.respectWordBoundaries config.conjunction string datum config.extractors) data
+    List.map (\datum -> matchAgainstAllExtractors config string datum) data
