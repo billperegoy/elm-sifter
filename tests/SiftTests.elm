@@ -21,6 +21,23 @@ nameConfig =
     }
 
 
+type alias MultiElement =
+    { name : String
+    , address : String
+    }
+
+
+multiConfig : Config MultiElement
+multiConfig =
+    { extractors = []
+    , limit = 10
+    , sort = Nothing
+    , filter = True
+    , conjunction = Or
+    , respectWordBoundaries = False
+    }
+
+
 all : Test
 all =
     describe "A Test Suite"
@@ -113,4 +130,38 @@ all =
                         sifter config "smith joe" data
                 in
                     Expect.equal result [ { name = "Joe Smith" } ]
+        , test "Can search on multiple fields" <|
+            \() ->
+                let
+                    config =
+                        { multiConfig | extractors = [ .name, .address ] }
+
+                    data =
+                        [ { name = "Joe Johnson", address = "Hill St" }
+                        , { name = "Jane Doe", address = "Johnson St" }
+                        ]
+
+                    result =
+                        sifter config "johnson" data
+                in
+                    Expect.equal result
+                        [ { name = "Joe Johnson", address = "Hill St" }
+                        , { name = "Jane Doe", address = "Johnson St" }
+                        ]
+        , test "Only searches with supplied extractors" <|
+            \() ->
+                let
+                    config =
+                        { multiConfig | extractors = [ .address ] }
+
+                    data =
+                        [ { name = "Joe Johnson", address = "Hill St" }
+                        , { name = "Jane Doe", address = "Johnson St" }
+                        ]
+
+                    result =
+                        sifter config "johnson" data
+                in
+                    Expect.equal result
+                        [ { name = "Jane Doe", address = "Johnson St" } ]
         ]
