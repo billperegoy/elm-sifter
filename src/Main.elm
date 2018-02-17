@@ -562,7 +562,10 @@ extractorsString config =
                 |> List.map (\x -> getExtractorName x)
                 |> String.join (", ")
     in
-        "    { extractors = \n" ++ "      [ " ++ extractorStrings ++ " ]\n"
+        "    { extractors = \n"
+            ++ "        [ "
+            ++ extractorStrings
+            ++ " ]\n"
 
 
 limitString : Sifter.Config Place -> String
@@ -588,12 +591,14 @@ sortString config =
 
         Just sort ->
             "    , sort =\n"
-                ++ "      Just { "
-                ++ "field = "
+                ++ "        Just\n"
+                ++ "            { field = "
                 ++ getExtractorName sort.field
-                ++ ", order = "
+                ++ "\n"
+                ++ "            , order = "
                 ++ toString sort.order
-                ++ " }\n"
+                ++ "\n"
+                ++ "            }\n"
 
 
 filterString : Sifter.Config Place -> String
@@ -634,7 +639,8 @@ showConfig config =
 
 initConfig : Sifter.Config Place
 initConfig =
-    { extractors = [ .city, .stateAbbrev, .state ]
+    { extractors =
+        [ .city, .stateAbbrev, .state ]
     , limit = 10
     , sort =
         Just
