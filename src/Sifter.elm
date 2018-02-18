@@ -62,11 +62,15 @@ type alias SortField a =
     }
 
 
+{-| Define sort order types
+-}
 type SortOrder
     = Ascending
     | Descending
 
 
+{-| Conjunction type used when multiple words are provided as a search term.
+-}
 type ConjunctionType
     = And
     | Or
@@ -157,6 +161,8 @@ baseMatchScore string matchResult =
         / (toFloat <| String.length (string))
 
 
+{-| Needs documentation.
+-}
 computeScore : String -> List Regex.Match -> Float
 computeScore string matchResult =
     case matchResult of
@@ -167,6 +173,8 @@ computeScore string matchResult =
             baseMatchScore string elem + startOfWordScore elem
 
 
+{-| Needs documentation.
+-}
 sifter : Config a -> String -> List a -> List a
 sifter config string data =
     if String.length string == 0 then
