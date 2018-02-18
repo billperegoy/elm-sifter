@@ -11,6 +11,11 @@ module Sifter
 
 {-| This library is intended to be used with autocompete. A user cab supply a list
 of arbitrary Elm structs and a config describing what criteria to use to sift the data.
+
+@docs sifter, computeScore
+
+@docs Config, Extractor, SortField, SortOrder, ConjunctionType
+
 -}
 
 import Regex
