@@ -1,4 +1,13 @@
-module Sifter exposing (..)
+module Sifter
+    exposing
+        ( sifter
+        , computeScore
+        , Config
+        , Extractor
+        , SortField
+        , SortOrder(..)
+        , ConjunctionType(..)
+        )
 
 import Regex
 
