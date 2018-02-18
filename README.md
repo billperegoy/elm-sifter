@@ -33,18 +33,17 @@ data =
     [
       { city = "Baltimore", stateAbbrev = "MD", state = "Maryland"}
     , { city = "Boston", stateAbbrev = "MA", state = "Massachusetts"}
-    , { city = "Chicage", stateAbbrev = "IL", state = "Illinois"}
+    , { city = "Chicago", stateAbbrev = "IL", state = "Illinois"}
     ]
 
 
-sifter config "b" data
+sifter config "b" data ==
     [
       { city = "Baltimore", stateAbbrev = "MD", state = "Maryland"}
     , { city = "Boston", stateAbbrev = "MA", state = "Massachusetts"}
-    , { city = "Chicage", stateAbbrev = "IL", state = "Illinois"}
     ]
 
-sifter config "bos" data
+sifter config "bos" data ==
     [{ city = "Boston", stateAbbrev = "MA", state = "Massachusetts"}]
 
 ```
