@@ -1,6 +1,6 @@
 {
     "version": "1.0.0",
-    "summary": "Smart filter library for use with autocomplete. Inspired by brianreavis/sifter.js",
+    "summary": "Smart filter library for use with autocomplete.",
     "repository": "https://github.com/billperegoy/elm-sifter.git",
     "license": "BSD3",
     "source-directories": [
