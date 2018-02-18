@@ -9,6 +9,10 @@ module Sifter
         , ConjunctionType(..)
         )
 
+{-| This library is intended to be used with autocompete. A user cab supply a list
+of arbitrary Elm structs and a config describing what criteria to use to sift the data.
+-}
+
 import Regex
 
 
