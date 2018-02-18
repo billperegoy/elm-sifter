@@ -12,6 +12,47 @@ module Sifter
 import Regex
 
 
+{-| Configuation definition for a config used by sifter to define sifting properties.
+
+extractors: List of functions used to etract string fields from the element to be sifted
+
+limit: Integer representing maximum number ofifted results to return
+
+sort: Structure representing sort properties for sifted data
+
+filter: Boolean denoting whether to sift or not
+
+conjunction: Should multi-word search terms require all or one to match? (And, Or)
+
+respectWordBoundaries: Boolean indicating whether matches only "count" at beginning of words
+
+-}
+type alias Config a =
+    { extractors : List (Extractor a)
+    , limit : Int
+    , sort : Maybe (SortField a)
+    , filter : Bool
+    , conjunction : ConjunctionType
+    , respectWordBoundaries : Bool
+    }
+
+
+{-| Extractors are how we describe how we access field information for our specific data type.
+These are functions that take in that data type and return a string.
+-}
+type alias Extractor a =
+    a -> String
+
+
+{-| This is how we define sort characteristics when records have equal scores. We can define
+a search field and an order (Ascending or Descending).
+-}
+type alias SortField a =
+    { field : Extractor a
+    , order : SortOrder
+    }
+
+
 type SortOrder
     = Ascending
     | Descending
@@ -24,26 +65,6 @@ type ConjunctionType
 
 type alias ScoredResult a =
     ( Float, a )
-
-
-type alias SortField a =
-    { field : Extractor a
-    , order : SortOrder
-    }
-
-
-type alias Config a =
-    { extractors : List (Extractor a)
-    , limit : Int
-    , sort : Maybe (SortField a)
-    , filter : Bool
-    , conjunction : ConjunctionType
-    , respectWordBoundaries : Bool
-    }
-
-
-type alias Extractor a =
-    a -> String
 
 
 orReducer : List (ScoredResult a) -> Float
