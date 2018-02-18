@@ -150,26 +150,6 @@ all =
                         sifter config "smith joe" data
                 in
                     Expect.equal result [ { name = "Joe Smith" } ]
-        , test "Can handle diacritics" <|
-            \() ->
-                let
-                    data =
-                        [ { name = "Hüsker" } ]
-
-                    result =
-                        sifter nameConfig "husker" data
-                in
-                    Expect.equal result [ { name = "Hüsker" } ]
-        , test "Can handle diacritics matching multiples" <|
-            \() ->
-                let
-                    data =
-                        [ { name = "Husker" }, { name = "Hüsker" } ]
-
-                    result =
-                        sifter nameConfig "husker" data
-                in
-                    Expect.equal result [ { name = "Hüsker" }, { name = "Husker" } ]
         , test "Can search on multiple fields" <|
             \() ->
                 let
