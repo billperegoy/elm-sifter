@@ -248,14 +248,7 @@ extractorsEqual e1 e2 =
 
 configContains : List (Sifter.Extractor Place) -> Sifter.Extractor Place -> Bool
 configContains extractors extractor =
-    let
-        place =
-            { city = "city"
-            , stateAbbrev = "stateAbbrev"
-            , state = "state"
-            }
-    in
-        List.any (\x -> x place == extractor place) extractors
+    List.any (extractorsEqual extractor) extractors
 
 
 fieldSelectCheckboxes : Sifter.Config Place -> Html Msg
