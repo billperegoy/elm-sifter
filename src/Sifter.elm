@@ -142,11 +142,15 @@ matchOne extractor respectWordBoundaries string elem =
                 |> String.split ("")
                 |> List.map lookupDiacritic
                 |> String.join ("")
-                |> Regex.regex
-                |> Regex.caseInsensitive
+                |> Regex.fromStringWith { caseInsensitive = True, multiline = False }
 
         matchResult =
-            Regex.find (Regex.AtMost 1) matcher (extractor elem)
+            case matcher of
+                Nothing ->
+                    []
+
+                Just m ->
+                    Regex.find m (extractor elem)
     in
         ( computeScore string matchResult, elem )
 
