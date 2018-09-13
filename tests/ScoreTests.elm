@@ -19,7 +19,7 @@ all =
                           }
                         ]
                 in
-                    Expect.equal (computeScore "abc" matchResult) 1.5
+                    Expect.within (Expect.Absolute 0.01) (computeScore "abc" matchResult) 1.5
         , test "A match of half the string not at the string start scores 0.5" <|
             \() ->
                 let
@@ -31,7 +31,7 @@ all =
                           }
                         ]
                 in
-                    Expect.equal (computeScore "abcd" matchResult) 0.5
+                    Expect.within (Expect.Absolute 0.01) (computeScore "abcd" matchResult) 0.5
         , test "A match of half the string at the string start scores 1.0" <|
             \() ->
                 let

@@ -5,12 +5,13 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Places exposing (..)
 import Sifter exposing (..)
+import Browser exposing (sandbox)
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    Html.beginnerProgram
-        { model = init
+    Browser.sandbox
+        { init = init
         , view = view
         , update = update
         }
@@ -59,7 +60,7 @@ update msg model =
         SetLimit text ->
             let
                 limit =
-                    text |> String.toInt |> Result.withDefault 0
+                    text |> String.toInt |> Maybe.withDefault 0
 
                 old_config =
                     model.config
@@ -214,7 +215,7 @@ sideBar config =
 
 sortForm : Sifter.Config Place -> Html Msg
 sortForm config =
-    div [ style [ ( "margin-bottom", "10px" ) ] ]
+    div [ style "margin-bottom" "10px" ]
         [ sortCheckbox config
         , sortDetails config
         ]
@@ -227,7 +228,7 @@ limitInput config =
         , input
             [ id "limit-input"
             , class "form-control"
-            , value (toString config.limit)
+            , value (String.fromInt config.limit)
             , onInput SetLimit
             ]
             []
@@ -253,8 +254,8 @@ configContains extractors extractor =
 
 fieldSelectCheckboxes : Sifter.Config Place -> Html Msg
 fieldSelectCheckboxes config =
-    div [ style [ ( "margin-bottom", "10px" ) ] ]
-        [ h5 [ style [ ( "margin-bottom", "0" ) ] ] [ text "Extractors" ]
+    div [ style "margin-bottom" "10px" ]
+        [ h5 [ style "margin-bottom" "0" ] [ text "Extractors" ]
         , div [ class "form-check form-check-inline" ]
             [ input
                 [ id "city-checkbox"
@@ -406,8 +407,8 @@ sortFieldRadio config =
 
 conjunctionRadio : Sifter.Config Place -> Html Msg
 conjunctionRadio config =
-    div [ style [ ( "margin-bottom", "10px" ) ] ]
-        [ h5 [ style [ ( "margin-bottom", "0" ) ] ] [ text "Conjunction" ]
+    div [ style "margin-bottom" "10px" ]
+        [ h5 [ style "margin-bottom" "0" ] [ text "Conjunction" ]
         , div [ class "form-check form-check-inline" ]
             [ input
                 [ id "conjunction-and-radio"
@@ -446,7 +447,7 @@ conjunctionRadio config =
 sortCheckbox : Sifter.Config Place -> Html Msg
 sortCheckbox config =
     div []
-        [ h5 [ style [ ( "margin-bottom", "0" ) ] ] [ text "Sort" ]
+        [ h5 [ style "margin-bottom" "0" ] [ text "Sort" ]
         , div [ class "form-check" ]
             [ input
                 [ id "sort-checkbox"
@@ -570,17 +571,36 @@ extractorsString config =
 
 limitString : Sifter.Config Place -> String
 limitString config =
-    "    , limit = " ++ toString config.limit ++ "\n"
+    "    , limit = " ++ String.fromInt config.limit ++ "\n"
 
 
 conjunctionString : Sifter.Config Place -> String
 conjunctionString config =
-    "    , conjunction = " ++ toString config.conjunction ++ "\n"
+    "    , conjunction = " ++ conjunctionTypeToString config.conjunction ++ "\n"
+
+
+conjunctionTypeToString val =
+    case val of
+        And ->
+            "And"
+
+        Or ->
+            "Or"
 
 
 respectWordBoundariesString : Sifter.Config Place -> String
 respectWordBoundariesString config =
-    "    , respectWordBoundaries = " ++ toString config.respectWordBoundaries ++ "\n"
+    "    , respectWordBoundaries = " ++ boolToString config.respectWordBoundaries ++ "\n"
+
+
+boolToString : Bool -> String
+boolToString val =
+    case val of
+        True ->
+            "true"
+
+        False ->
+            "false"
 
 
 sortString : Sifter.Config Place -> String
@@ -596,14 +616,24 @@ sortString config =
                 ++ getExtractorName sort.field
                 ++ "\n"
                 ++ "            , order = "
-                ++ toString sort.order
+                ++ sortOrderToString sort.order
                 ++ "\n"
                 ++ "            }\n"
 
 
+sortOrderToString : SortOrder -> String
+sortOrderToString val =
+    case val of
+        Ascending ->
+            "Ascending"
+
+        Descending ->
+            "Descending"
+
+
 filterString : Sifter.Config Place -> String
 filterString config =
-    "    , filter = " ++ toString config.filter ++ "\n"
+    "    , filter = " ++ boolToString config.filter ++ "\n"
 
 
 getExtractorName : Extractor Place -> String
@@ -621,7 +651,7 @@ getExtractorName extractor =
 showConfig : Sifter.Config Place -> Html Msg
 showConfig config =
     div [ class "col-5" ]
-        [ pre [ style [ ( "margin-top", "30px" ) ] ]
+        [ pre [ style "margin-top" "30px" ]
             [ code []
                 [ text
                     (extractorsString config
