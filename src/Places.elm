@@ -1,4 +1,4 @@
-module Places exposing (..)
+module Places exposing (all)
 
 
 all =
