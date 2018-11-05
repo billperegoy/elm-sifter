@@ -142,6 +142,7 @@ matchOne extractor respectWordBoundaries string elem =
                 |> String.split ("")
                 |> List.map lookupDiacritic
                 |> String.join ("")
+                |> Regex.escape
                 |> Regex.regex
                 |> Regex.caseInsensitive
 
